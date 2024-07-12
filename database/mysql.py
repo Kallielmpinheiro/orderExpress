@@ -1,5 +1,4 @@
 import mysql.connector
-
 client = mysql.connector.connect(
     host="localhost",
     port="3306",
@@ -7,3 +6,5 @@ client = mysql.connector.connect(
     password="",    
     database="orderexpress"
 )
+cursor = client.cursor()
+
