@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-import pymongo
 from database.mongodb import db
 
 class Pedido(BaseModel):
