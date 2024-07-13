@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
-import mysql.connector
 from database.mysql import client
 
 class User(BaseModel):
+    idUser: int = Field(None, alias="idUser")
     nomeCompleto: str
     cpf: str
     dataNascimento: str
@@ -21,7 +21,7 @@ class User(BaseModel):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor = client.cursor()
-        user_data = user.dict()
+        user_data = user.dict(exclude={"idUser"})
         cursor.execute(query, (
             user_data["nomeCompleto"], user_data["cpf"], user_data["dataNascimento"],
             user_data["email"], user_data["senha"], user_data["telefone"],
@@ -39,4 +39,18 @@ class User(BaseModel):
         result = cursor.fetchone()
         cursor.close()
         if result:
+            result['dataNascimento'] = str(result['dataNascimento'])
             return User(**result)
+        return None
+
+    @classmethod
+    def getUserByCpf(cls, cpf: str) -> "User":
+        query = "SELECT * FROM User WHERE cpf = %s"
+        cursor = client.cursor(dictionary=True)
+        cursor.execute(query, (cpf,))
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            result["dataNascimento"] = str(result["dataNascimento"])
+            return User(**result)
+        return None
