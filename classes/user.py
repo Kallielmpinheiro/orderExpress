@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 from database.mysql import client
+from flask_login import UserMixin
 
-class User(BaseModel):
+class User(BaseModel, UserMixin):
     idUser: int = Field(None, alias="idUser")
     nomeCompleto: str
     cpf: str
@@ -54,3 +55,19 @@ class User(BaseModel):
             result["dataNascimento"] = str(result["dataNascimento"])
             return User(**result)
         return None
+
+    # Métodos exigidos pelo Flask-Login
+    @property
+    def is_active(self):
+        return self.statusConta == "active"
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.idUser)
