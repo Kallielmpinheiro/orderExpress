@@ -5,9 +5,9 @@ from database.mysql import client, cursor
 def testCreateUser():
     user = User(
         nomeCompleto="João da Silvaa",
-        cpf="123456789002",
+        cpf="123456789003",
         dataNascimento="1990-01-01",
-        email="joao@example.com",
+        email="joao3@example.com",
         senha="senha123",
         telefone="123456789",
         endereco="Rua A, 123"
