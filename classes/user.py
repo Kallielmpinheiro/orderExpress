@@ -70,7 +70,7 @@ class User(BaseModel, UserMixin):
     def isAnonymous(self):
         return False
 
-    def getId(self):
+    def get_id(self):
         return str(self.idUser)
     
     def banir(self):
@@ -98,3 +98,15 @@ class User(BaseModel, UserMixin):
             print(f"Erro ao desbanir usuário: {e}")
         finally:
             cursor.close()
+            
+    def getByUserGetStatus(cls, statusConta: str) -> "User":
+        query = "SELECT * FROM User WHERE statusConta = %s"
+        cursor = client.cursor(dictionary=True)
+        cursor.execute(query, (statusConta,))
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            result["dataNascimento"] = str(result["dataNascimento"])
+            return User(**result)
+        return None
+

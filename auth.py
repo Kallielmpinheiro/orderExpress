@@ -12,6 +12,15 @@ def index():
         user_type = None
     return render_template('index.html', user_type=user_type)
 
+@auth_bp.route('/admin')
+def indexadmin():
+    if current_user.is_authenticated:
+        user_type = current_user.tipoUser
+    else:
+        user_type = None
+    return render_template('admin.html', user_type=user_type)
+        
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -19,11 +28,17 @@ def login():
         password = request.form['password']
 
         user = User.getUserByCpf(cpf)
-        if user and user.senha == password:
-            login_user(user)
-            return redirect(url_for('auth.redirect_page'))
-
-        flash('CPF ou senha incorretos')
+        if user:
+            if user.senha == password:
+                if user.statusConta == 'active':
+                    login_user(user)
+                    return redirect(url_for('auth.redirect_page'))
+                else:
+                    flash('Sua conta está suspensa. Entre em contato com o administrador.')
+            else:
+                flash('Senha incorreta.')
+        else:
+            flash('CPF não encontrado.')
 
     return render_template('login.html')
 
@@ -40,32 +55,39 @@ def redirect_page():
 
 @auth_bp.route('/suspend_user', methods=['POST'])
 @login_required
-def suspendUser():
+def suspend_user():
     if current_user.tipoUser == 'admin':
         cpf = request.form['cpf']
         user = User.getUserByCpf(cpf)
         if user:
-            user.suspender()
+            user.banir()
             flash(f'Usuário com CPF {cpf} suspenso com sucesso')
+            print(f'Usuário com CPF {cpf} suspenso com sucesso')
         else:
             flash('Usuário não encontrado')
+            print('Usuário não encontrado')
         return redirect(url_for('auth.index'))
     else:
         flash('Apenas administradores podem suspender usuários')
+        print('Apenas administradores podem suspender usuários')
         return redirect(url_for('auth.index'))
     
 @auth_bp.route('/unsuspend_user', methods=['POST'])
 @login_required
-def unsuspendUser():
+def unsuspend_user():
     if current_user.tipoUser == 'admin':
         cpf = request.form['cpf']
         user = User.getUserByCpf(cpf)
         if user:
             user.desbanir()
             flash(f'Usuário com CPF {cpf} desbanido com sucesso')
+            print(f'Usuário com CPF {cpf} desbanido com sucesso')
         else:
             flash('Usuário não encontrado')
+            print('Usuário não encontrado')
         return redirect(url_for('auth.index'))
     else:
         flash('Apenas administradores podem desbanir usuários')
-        return redirect(url_for('auth.index'))
+        print('Apenas administradores podem desbanir usuários')
+        return redirect(url_for('auth.admin'))
+    
