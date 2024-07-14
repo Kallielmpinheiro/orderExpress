@@ -1,20 +1,21 @@
 import pytest
 from classes.user import User
+from database.mysql import client, cursor
 
-# def testCreateUser():
-#     user = User(
-#         nomeCompleto="João da Silvaa",
-#         cpf="123456789001",
-#         dataNascimento="1990-01-01",
-#         email="joao@example.com",
-#         senha="senha123",
-#         telefone="123456789",
-#         endereco="Rua A, 123"
-#     )
-#     User.createUser(user)
+def testCreateUser():
+    user = User(
+        nomeCompleto="João da Silvaa",
+        cpf="123456789002",
+        dataNascimento="1990-01-01",
+        email="joao@example.com",
+        senha="senha123",
+        telefone="123456789",
+        endereco="Rua A, 123"
+    )
+    User.createUser(user)
 
-def test_get_user_by_cpf():
-    cpf_teste = "123456789001"
+def testGetUserByCpf():
+    cpf_teste = "123456789002"
     try:
         user = User.getUserByCpf(cpf_teste)
 
@@ -27,8 +28,8 @@ def test_get_user_by_cpf():
     except Exception as e:
         pytest.fail(f"Erro ao buscar usuário: {e}")
         
-def test_get_user_by_id():
-    user_id = 4
+def testGetUserById():
+    user_id = 10
     try:
         user = User.getUserById(user_id)
 
@@ -40,3 +41,22 @@ def test_get_user_by_id():
 
     except Exception as e:
         pytest.fail(f"Erro ao buscar usuário por ID: {e}")
+ 
+def testSuspendUser():
+    user = User.getUserByCpf("123456789002")
+    assert user.statusConta == "active" or user.statusConta == "banned", f"Status da conta inesperado '{user.statusConta}'"
+
+    user.banir()
+
+    user = User.getUserByCpf("123456789002")
+    assert user.statusConta == "banned", f"Status da conta esperado 'banned', mas encontrado '{user.statusConta}'"
+
+def testUnsuspendUser():
+    user = User.getUserByCpf("123456789002")
+    user.banir()
+    assert user.statusConta == "banned", f"Status da conta esperad3o 'banned', mas encontrado '{user.statusConta}'"
+
+    user.desbanir()
+
+    user = User.getUserByCpf("123456789002")
+    assert user.statusConta == "active", f"Status da conta esperado 'active', mas encontrado '{user.statusConta}'"

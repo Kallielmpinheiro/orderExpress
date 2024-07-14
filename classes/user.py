@@ -57,17 +57,44 @@ class User(BaseModel, UserMixin):
         return None
 
     # Métodos exigidos pelo Flask-Login
+    
     @property
-    def is_active(self):
+    def isActive(self):
         return self.statusConta == "active"
 
     @property
-    def is_authenticated(self):
+    def isAuthenticated(self):
         return True
 
     @property
-    def is_anonymous(self):
+    def isAnonymous(self):
         return False
 
-    def get_id(self):
+    def getId(self):
         return str(self.idUser)
+    
+    def banir(self):
+        query = "UPDATE User SET statusConta = 'banned' WHERE cpf = %s"
+        cursor = client.cursor()
+        try:
+            cursor.execute(query, (self.cpf,))
+            client.commit()
+            self.statusConta = 'banned'
+            print(f"Usuário com CPF {self.cpf} banido com sucesso!")
+        except Exception as e:
+            print(f"Erro ao banir usuário: {e}")
+        finally:
+            cursor.close()
+
+    def desbanir(self):
+        query = "UPDATE User SET statusConta = 'active' WHERE cpf = %s"
+        cursor = client.cursor()
+        try:
+            cursor.execute(query, (self.cpf,))
+            client.commit()
+            self.statusConta = 'active'
+            print(f"Usuário com CPF {self.cpf} desbanido com sucesso!")
+        except Exception as e:
+            print(f"Erro ao desbanir usuário: {e}")
+        finally:
+            cursor.close()
