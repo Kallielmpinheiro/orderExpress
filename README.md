@@ -14,7 +14,7 @@ O orderExpress é uma aplicação web robusta desenvolvida para o gerenciamento 
 
 ## Como Usar
 
-## Ainda nao funcional 12/07/2k24
+**Status: Ainda não funcional**
 
 Para iniciar o orderExpress em seu ambiente local:
 
@@ -39,3 +39,7 @@ Contribuições são bem-vindas! Sinta-se à vontade para reportar problemas ou 
 
 Juntos, podemos tornar o orderExpress uma ferramenta ainda mais poderosa para o gerenciamento de negócios.
 
+---
+
+**LinkedIn:** [Kalliel Pinheiro](https://www.linkedin.com/in/kalliel-pinheiro/)  
+**Gmail:** kallielmpinheiro2004@gmail.com
