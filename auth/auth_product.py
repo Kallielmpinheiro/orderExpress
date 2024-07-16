@@ -7,13 +7,11 @@ product_bp = Blueprint('product', __name__)
 @product_bp.route('/create_product', methods=['GET', 'POST'])
 def create_product():
     if request.method == 'POST':
-        id_product = int(request.form['id_product'])
         nome = request.form['nome']
         descricao = request.form['descricao']
         price = float(request.form['price'])
 
         product = Product(
-            id_product=id_product,
             nome=nome,
             descricao=descricao,
             price=price
@@ -30,14 +28,13 @@ def create_product():
 
 @product_bp.route('/edit_product', methods=['POST'])
 def edit_product():
-    id_product = int(request.form['id_product_edit'])
     nome = request.form['nome_edit']
     descricao = request.form['descricao_edit']
     price = float(request.form['price_edit'])
 
     try:
-        Product.editarProduto(id_product, nome, descricao, price)
-        flash(f'Produto {id_product} atualizado com sucesso!')
+        Product.editarProduto(nome, descricao, price)
+        flash(f'Produto {nome} atualizado com sucesso!')
     except Exception as e:
         flash(f'Erro ao atualizar produto: {e}')
     
@@ -45,10 +42,10 @@ def edit_product():
 
 @product_bp.route('/delete_product', methods=['POST'])
 def delete_product():
-    id_product = int(request.form['id_product_delete'])
+    nome = request.form['nome']
     try:
-        Product.excluirProduto(id_product)
-        flash(f'Produto {id_product} excluído com sucesso!')
+        Product.excluirProduto(nome)
+        flash(f'Produto {nome} excluído com sucesso!')
     except Exception as e:
         flash(f'Erro ao excluir produto: {e}')
     

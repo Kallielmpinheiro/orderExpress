@@ -10,14 +10,14 @@
 <body>
     <div class="container mt-5">
         <h2>Gerenciar Usuários</h2>
-        <form method="POST" action="{{ url_for('user.suspend_user') }}">
+        <form method="POST" action="{{ url_for('user.suspend_user') }}" class="mb-3">
             <div class="mb-3">
                 <label for="cpf" class="form-label">CPF do Usuário</label>
                 <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o CPF" required>
             </div>
             <button type="submit" class="btn btn-danger">Banir</button>
         </form>
-        <form method="POST" action="{{ url_for('user.unsuspend_user') }}" class="mt-3">
+        <form method="POST" action="{{ url_for('user.unsuspend_user') }}" class="mb-5">
             <div class="mb-3">
                 <label for="cpf" class="form-label">CPF do Usuário</label>
                 <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o CPF" required>
@@ -25,49 +25,46 @@
             <button type="submit" class="btn btn-success">Desbanir</button>
         </form>
 
-        <h2 class="mt-5">Gerenciar Produtos</h2>
-        <form method="POST" action="{{ url_for('product.create_product') }}">
-            <div class="mb-3">
-                <label for="id_product" class="form-label">ID do Produto</label>
-                <input type="text" class="form-control" id="id_product" name="id_product" required>
-            </div>
+        <h2>Gerenciar Produtos</h2>
+        <!-- Formulário de criação de produto -->
+        <form method="POST" action="{{ url_for('product.create_product') }}" class="mb-3">
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome</label>
                 <input type="text" class="form-control" id="nome" name="nome" required>
             </div>
             <div class="mb-3">
                 <label for="descricao" class="form-label">Descrição</label>
-                <textarea class="form-control" id="descricao" name="descricao" required></textarea>
+                <input type="text" class="form-control" id="descricao" name="descricao" required>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Preço</label>
-                <input type="text" class="form-control" id="price" name="price" required>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" required>
             </div>
             <button type="submit" class="btn btn-primary">Criar Produto</button>
         </form>
-        <form method="POST" action="{{ url_for('product.edit_product') }}" class="mt-3">
+
+        <!-- Formulário de edição de produto -->
+        <form method="POST" action="{{ url_for('product.edit_product') }}" class="mb-3">
             <div class="mb-3">
-                <label for="id_product_edit" class="form-label">ID do Produto para Editar</label>
-                <input type="text" class="form-control" id="id_product_edit" name="id_product_edit" required>
-            </div>
-            <div class="mb-3">
-                <label for="nome_edit" class="form-label">Nome</label>
+                <label for="nome_edit" class="form-label">Nome do Produto</label>
                 <input type="text" class="form-control" id="nome_edit" name="nome_edit" required>
             </div>
             <div class="mb-3">
-                <label for="descricao_edit" class="form-label">Descrição</label>
-                <textarea class="form-control" id="descricao_edit" name="descricao_edit" required></textarea>
+                <label for="descricao_edit" class="form-label">Nova Descrição</label>
+                <input type="text" class="form-control" id="descricao_edit" name="descricao_edit" required>
             </div>
             <div class="mb-3">
-                <label for="price_edit" class="form-label">Preço</label>
-                <input type="text" class="form-control" id="price_edit" name="price_edit" required>
+                <label for="price_edit" class="form-label">Novo Preço</label>
+                <input type="number" class="form-control" id="price_edit" name="price_edit" step="0.01" required>
             </div>
             <button type="submit" class="btn btn-warning">Editar Produto</button>
         </form>
-        <form method="POST" action="{{ url_for('product.delete_product') }}" class="mt-3">
+
+        <!-- Formulário de exclusão de produto -->
+        <form method="POST" action="{{ url_for('product.delete_product') }}" class="mb-5">
             <div class="mb-3">
-                <label for="id_product_delete" class="form-label">ID do Produto para Excluir</label>
-                <input type="text" class="form-control" id="id_product_delete" name="id_product_delete" required>
+                <label for="nome" class="form-label">Nome do Produto</label>
+                <input type="text" class="form-control" id="nome" name="nome" required>
             </div>
             <button type="submit" class="btn btn-danger">Excluir Produto</button>
         </form>
