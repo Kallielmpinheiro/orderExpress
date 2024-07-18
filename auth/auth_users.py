@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from classes.user import User
 from decorators import admin_required
+from classes.product import Product
 
 user_bp = Blueprint('user', __name__)
 
@@ -11,7 +12,11 @@ def index():
         user_type = current_user.tipoUser
     else:
         user_type = None
-    return render_template('index.html', user_type=user_type)
+        
+    products = Product.getByProducts()
+    for product in products:
+        print(f"Produto: {product.nome}, Preço: {product.price}")
+    return render_template('index.html', user_type=user_type, products=products)
 
 @user_bp.route('/admin')
 @admin_required

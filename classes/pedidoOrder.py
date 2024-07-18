@@ -2,12 +2,12 @@ from pydantic import BaseModel, Field
 from database.mongodb import db
 
 class Pedido(BaseModel):
-    id_pedido: int
-    id_cliente: int
-    produtos: list[str]
+    nomeCompleto : str
+    cpf : str
+    items : list = []
     total: float
     status: str = "Pendente"
-    
+        
     class Config:
         orm_mode = True
     
