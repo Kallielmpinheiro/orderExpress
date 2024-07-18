@@ -2,7 +2,8 @@ from flask import Flask, abort, render_template
 from flask_login import LoginManager, current_user
 from auth.auth_users import user_bp
 from auth.auth_product import product_bp
-
+from auth.auth_pedidos import pedidos_bp
+from auth.auth_cart import cart_bp
 
 from classes.user import User
 
@@ -24,6 +25,8 @@ def forbidden_error(error):
 
 app.register_blueprint(user_bp)
 app.register_blueprint(product_bp)
+app.register_blueprint(cart_bp)
+app.register_blueprint(pedidos_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
