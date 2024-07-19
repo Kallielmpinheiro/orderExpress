@@ -39,7 +39,7 @@ def login():
             if user.senha == password:
                 if user.statusConta == 'active':
                     login_user(user)
-                    return redirect(url_for('user.redirect_page'))
+                    return redirect(url_for('user.index'))
                 else:
                     flash('Sua conta está suspensa. Entre em contato com o administrador.')
             else:

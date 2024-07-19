@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required
-from bson import ObjectId
 from classes.product import Product
 from classes.cartOrder import Cart
 
@@ -10,10 +9,8 @@ cart_bp = Blueprint('cart', __name__)
 @login_required
 def viewCart():
     cart_items = Cart.getCartItems()
-    return render_template('cart.html', cart_items=cart_items)
-    # cart_items = Cart.getCartItems()
-    # cart_items_serializable = [item.serialize() for item in cart_items]
-    # return render_template('cart.html', cart_items=cart_items_serializable)
+    total_price = sum(item['price'] for item in cart_items)  # Calcular o total aqui
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
 
 @cart_bp.route('/add_to_cart/<product_name>')
 @login_required
@@ -39,13 +36,4 @@ def clear_cart():
     Cart.clearCart()
     flash("Carrinho esvaziado!")
     return redirect(url_for('cart.viewCart'))
-
-@cart_bp.route('/checkout')
-@login_required
-def checkout():
-    cart_items = Cart.getCartItems()
-    if not cart_items:
-        flash("Seu carrinho está vazio!")
-        return redirect(url_for('cart.viewCart'))
-    cart_items_serializable = [item.serialize() for item in cart_items]
-    return render_template('checkout.html', cart_items=cart_items_serializable)
+    
