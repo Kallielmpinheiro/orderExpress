@@ -9,7 +9,7 @@ cart_bp = Blueprint('cart', __name__)
 @login_required
 def viewCart():
     cart_items = Cart.getCartItems()
-    total_price = sum(item['price'] for item in cart_items)  # Calcular o total aqui
+    total_price = sum(item['price'] for item in cart_items)
     return render_template('cart.html', cart_items=cart_items, total_price=total_price)
 
 @cart_bp.route('/add_to_cart/<product_name>')
