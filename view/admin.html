@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,65 +9,81 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Gerenciar Usuários</h2>
-        <form method="POST" action="{{ url_for('user.suspend_user') }}" class="mb-3">
-            <div class="mb-3">
-                <label for="cpf" class="form-label">CPF do Usuário</label>
-                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o CPF" required>
-            </div>
-            <button type="submit" class="btn btn-danger">Banir</button>
-        </form>
-        <form method="POST" action="{{ url_for('user.unsuspend_user') }}" class="mb-5">
-            <div class="mb-3">
-                <label for="cpf" class="form-label">CPF do Usuário</label>
-                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o CPF" required>
-            </div>
-            <button type="submit" class="btn btn-success">Desbanir</button>
-        </form>
+        <ul class="nav nav-tabs" id="adminTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="usuarios-tab" data-bs-toggle="tab" href="#gerenciar-usuarios" role="tab" aria-controls="gerenciar-usuarios" aria-selected="true">Gerenciar Usuários</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="produtos-tab" data-bs-toggle="tab" href="#gerenciar-produtos" role="tab" aria-controls="gerenciar-produtos" aria-selected="false">Gerenciar Produtos</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="adminTabContent">
+            <div class="tab-pane fade show active" id="gerenciar-usuarios" role="tabpanel" aria-labelledby="usuarios-tab">
+                <h2 class="mt-4">Gerenciar Usuários</h2>
+                <!-- Formulário de Banir Usuário -->
+                <form method="POST" action="{{ url_for('user.suspend_user') }}" class="mb-3">
+                    <div class="mb-3">
+                        <label for="cpf_banir" class="form-label">CPF do Usuário</label>
+                        <input type="text" class="form-control" id="cpf_banir" name="cpf" placeholder="Digite o CPF" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Banir</button>
+                </form>
 
-        <h2>Gerenciar Produtos</h2>
-        <!-- Formulário de criação de produto -->
-        <form method="POST" action="{{ url_for('product.create_product') }}" class="mb-3">
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="nome" name="nome" required>
+                <!-- Formulário de Desbanir Usuário -->
+                <form method="POST" action="{{ url_for('user.unsuspend_user') }}" class="mb-3">
+                    <div class="mb-3">
+                        <label for="cpf_desbanir" class="form-label">CPF do Usuário</label>
+                        <input type="text" class="form-control" id="cpf_desbanir" name="cpf" placeholder="Digite o CPF" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Desbanir</button>
+                </form>
             </div>
-            <div class="mb-3">
-                <label for="descricao" class="form-label">Descrição</label>
-                <input type="text" class="form-control" id="descricao" name="descricao" required>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">Preço</label>
-                <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Criar Produto</button>
-        </form>
+            <div class="tab-pane fade" id="gerenciar-produtos" role="tabpanel" aria-labelledby="produtos-tab">
+                <h2 class="mt-4">Gerenciar Produtos</h2>
+                <!-- Formulário de Criação de Produto -->
+                <form method="POST" action="{{ url_for('product.create_product') }}" class="mb-3">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Preço</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Criar Produto</button>
+                </form>
 
-        <!-- Formulário de edição de produto -->
-        <form method="POST" action="{{ url_for('product.edit_product') }}" class="mb-3">
-            <div class="mb-3">
-                <label for="nome_edit" class="form-label">Nome do Produto</label>
-                <input type="text" class="form-control" id="nome_edit" name="nome_edit" required>
-            </div>
-            <div class="mb-3">
-                <label for="descricao_edit" class="form-label">Nova Descrição</label>
-                <input type="text" class="form-control" id="descricao_edit" name="descricao_edit" required>
-            </div>
-            <div class="mb-3">
-                <label for="price_edit" class="form-label">Novo Preço</label>
-                <input type="number" class="form-control" id="price_edit" name="price_edit" step="0.01" required>
-            </div>
-            <button type="submit" class="btn btn-warning">Editar Produto</button>
-        </form>
+                <!-- Formulário de Edição de Produto -->
+                <form method="POST" action="{{ url_for('product.edit_product') }}" class="mb-3">
+                    <div class="mb-3">
+                        <label for="nome_edit" class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control" id="nome_edit" name="nome_edit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricao_edit" class="form-label">Nova Descrição</label>
+                        <input type="text" class="form-control" id="descricao_edit" name="descricao_edit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price_edit" class="form-label">Novo Preço</label>
+                        <input type="number" class="form-control" id="price_edit" name="price_edit" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Editar Produto</button>
+                </form>
 
-        <!-- Formulário de exclusão de produto -->
-        <form method="POST" action="{{ url_for('product.delete_product') }}" class="mb-5">
-            <div class="mb-3">
-                <label for="nome" class="form-label">Nome do Produto</label>
-                <input type="text" class="form-control" id="nome" name="nome" required>
+                <!-- Formulário de Exclusão de Produto -->
+                <form method="POST" action="{{ url_for('product.delete_product') }}" class="mb-5">
+                    <div class="mb-3">
+                        <label for="nome_delete" class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control" id="nome_delete" name="nome" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Excluir Produto</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-danger">Excluir Produto</button>
-        </form>
+        </div>
     </div>
 </body>
 </html>

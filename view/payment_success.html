@@ -1,0 +1,61 @@
+<!-- templates/payment_success.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="5;url={{ index_url }}">
+    <title>Download Recibo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        p {
+            font-size: 16px;
+        }
+        .spinner {
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, .1);
+            border-left-color: #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function() {
+            window.location.href = "{{ receipt_url }}";
+            setTimeout(function() {
+                window.location.href = "{{ index_url }}";
+            }, 5000);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Pagamento Realizado com Sucesso!</h1>
+        <p>O seu recibo será baixado em breve.</p>
+        <div class="spinner"></div>
+        <p>Você será redirecionado para a página inicial em 5 segundos.</p>
+    </div>
+</body>
+</html>
