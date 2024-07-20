@@ -1,15 +1,17 @@
-from flask import Blueprint, request, jsonify, redirect, url_for, flash
+import os
+from flask import Blueprint, request, redirect, url_for, flash, jsonify, send_file, render_template, send_from_directory
 from flask_login import login_required, current_user
-from classes.pedidoOrder import Pedido
-from database.mongodb import db
-from bson import ObjectId
+from classes.pedidoOrder import Pedido, generate_receipt
+from classes.cartOrder import Cart
 import logging
 import json
-from classes.cartOrder import Cart
+import stripe
 
 pedidos_bp = Blueprint('pedidos', __name__)
 
 logging.basicConfig(level=logging.INFO)
+
+stripe.api_key = ''
 
 @pedidos_bp.route('/place_order', methods=['POST'])
 @login_required
@@ -31,21 +33,72 @@ def place_order():
 
     try:
         pedido = Pedido(**data)
-        pedido_data = pedido.saveMongo()
-        flash("Pedido realizado com sucesso!")
+        pedido_data = pedido.save_mongo()
+        flash("Pedido realizado com sucesso! Aguardando pagamento.")
         logging.info(f"Pedido salvo no MongoDB: {pedido_data}")
+        
         Cart.clearCart()
-        return redirect(url_for('cart.viewCart'))
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'brl',
+                    'product_data': {
+                        'name': 'Pedido ' + str(pedido_data["_id"]),
+                    },
+                    'unit_amount': int(total_price * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('pedidos.payment_success', pedido_id=pedido_data["_id"], _external=True),
+            cancel_url=url_for('cart.viewCart', _external=True),
+        )
+
+        return redirect(session.url, code=303)
+
     except Exception as e:
         flash(f"Erro ao realizar o pedido: {str(e)}")
         logging.error(f"Erro ao processar o pedido: {e}")
         return redirect(url_for('cart.viewCart'))
 
+@pedidos_bp.route('/payment_success/<pedido_id>')
+@login_required
+def payment_success(pedido_id):
+    try:
+        if Pedido.update_status(pedido_id, "pago"):
+            flash("Pagamento realizado com sucesso! Pedido atualizado para 'pago'.")
+            logging.info(f"Pedido {pedido_id} atualizado para 'pago'.")
+
+            pedido_data = Pedido.find_by_id(pedido_id)
+
+            if pedido_data:
+                receipt_path = generate_receipt(pedido_data, pedido_id)
+                receipt_url = url_for('pedidos.download_receipt', filename=os.path.basename(receipt_path))
+
+                return render_template('payment_success.html', receipt_url=receipt_url, index_url=url_for('user.index'))
+
+            flash("Erro ao gerar o recibo.")
+            return redirect(url_for('user.index'))
+
+        flash("Erro ao atualizar o status do pedido.")
+        return redirect(url_for('user.index'))
+
+    except Exception as e:
+        flash(f"Erro ao processar o pagamento: {str(e)}")
+        logging.error(f"Erro ao processar o pagamento: {e}")
+        return redirect(url_for('user.index'))
+
+@pedidos_bp.route('/receipts/<filename>')
+@login_required
+def download_receipt(filename):
+    return send_from_directory('receipts', filename, as_attachment=True)
+
 @pedidos_bp.route('/order/<order_id>')
 @login_required
 def view_order(order_id):
-    pedidos = db.pedidos
-    order = pedidos.find_one({"_id": ObjectId(order_id)})
+    order = Pedido.find_by_id(order_id)
     if order:
         return jsonify(order), 200
     else:
