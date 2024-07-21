@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Gerenciar Usuários e Produtos</title>
+    <title>Admin - Gerenciar Usuários, Produtos e Vendas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container mt-5">
@@ -15,6 +16,9 @@
             </li>
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="produtos-tab" data-bs-toggle="tab" href="#gerenciar-produtos" role="tab" aria-controls="gerenciar-produtos" aria-selected="false">Gerenciar Produtos</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="vendas-tab" data-bs-toggle="tab" href="#analisar-vendas" role="tab" aria-controls="analisar-vendas" aria-selected="false">Analisar Vendas</a>
             </li>
         </ul>
         <div class="tab-content" id="adminTabContent">
@@ -83,7 +87,95 @@
                     <button type="submit" class="btn btn-danger">Excluir Produto</button>
                 </form>
             </div>
+            <div class="tab-pane fade" id="analisar-vendas" role="tabpanel" aria-labelledby="vendas-tab">
+                <h2 class="mt-4">Análise de Vendas</h2>
+                <form id="salesAnalysisForm" class="mb-3">
+                    <div class="mb-3">
+                        <label for="data_inicio" class="form-label">Data de Início</label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="data_fim" class="form-label">Data de Fim</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analisar</button>
+                </form>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+                <div id="resultado-analise">
+                    <!-- Resultados da análise de vendas serão exibidos aqui -->
+                    <h3>Resultados da Análise de Vendas</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Total de Vendas</th>
+                                <th scope="col">Média de Vendas</th>
+                                <th scope="col">Contagem de Vendas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="totalSales"></td>
+                                <td id="averageSales"></td>
+                                <td id="salesCount"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('salesAnalysisForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const dataInicio = document.getElementById('data_inicio').value;
+            const dataFim = document.getElementById('data_fim').value;
+
+            console.log('Data de Início:', dataInicio);
+            console.log('Data de Fim:', dataFim);
+
+            fetch(`/salesAnalysis?data_inicio=${dataInicio}&data_fim=${dataFim}`)
+                .then(response => response.json())
+                .then(data => {
+                    const salesChartCtx = document.getElementById('salesChart').getContext('2d');
+                    if (data.error) {
+                        document.getElementById('resultado-analise').innerHTML = `<p style="color:red;">Erro: ${data.error}</p>`;
+                    } else {
+                        document.getElementById('totalSales').textContent = `R$ ${data.totalSales.toFixed(2)}`;
+                        document.getElementById('averageSales').textContent = `R$ ${data.averageSales.toFixed(2)}`;
+                        document.getElementById('salesCount').textContent = data.salesCount;
+
+                        const chartData = {
+                            labels: data.sales.map(sale => sale.date),
+                            datasets: [{
+                                label: 'Vendas',
+                                data: data.sales.map(sale => sale.amount),
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        };
+                        const chartOptions = {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        };
+                        new Chart(salesChartCtx, {
+                            type: 'line',
+                            data: chartData,
+                            options: chartOptions
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na análise de vendas:', error);
+                    document.getElementById('resultado-analise').innerHTML = `<p style="color:red;">Erro ao buscar dados da análise de vendas.</p>`;
+                });
+        });
+    </script>
 </body>
 </html>

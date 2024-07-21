@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, redirect, url_for, flash, jsonify, send_file, render_template, send_from_directory
 from flask_login import login_required, current_user
-from classes.pedidoOrder import Pedido, generate_receipt
+from classes.pedidoOrder import Pedido, generateReceipt
 from classes.cartOrder import Cart
 import logging
 import json
@@ -15,7 +15,7 @@ stripe.api_key = ''
 
 @pedidos_bp.route('/place_order', methods=['POST'])
 @login_required
-def place_order():
+def placeOrder():
     logging.info("Iniciando o processamento do pedido")
 
     data = request.form.to_dict()
@@ -33,7 +33,7 @@ def place_order():
 
     try:
         pedido = Pedido(**data)
-        pedido_data = pedido.save_mongo()
+        pedido_data = pedido.saveMongo()
         flash("Pedido realizado com sucesso! Aguardando pagamento.")
         logging.info(f"Pedido salvo no MongoDB: {pedido_data}")
         
@@ -67,14 +67,14 @@ def place_order():
 @login_required
 def payment_success(pedido_id):
     try:
-        if Pedido.update_status(pedido_id, "pago"):
+        if Pedido.updateStatus(pedido_id, "pago"):
             flash("Pagamento realizado com sucesso! Pedido atualizado para 'pago'.")
             logging.info(f"Pedido {pedido_id} atualizado para 'pago'.")
 
-            pedido_data = Pedido.find_by_id(pedido_id)
+            pedido_data = Pedido.findById(pedido_id)
 
             if pedido_data:
-                receipt_path = generate_receipt(pedido_data, pedido_id)
+                receipt_path = generateReceipt(pedido_data, pedido_id)
                 receipt_url = url_for('pedidos.download_receipt', filename=os.path.basename(receipt_path))
 
                 return render_template('payment_success.html', receipt_url=receipt_url, index_url=url_for('user.index'))
@@ -98,7 +98,7 @@ def download_receipt(filename):
 @pedidos_bp.route('/order/<order_id>')
 @login_required
 def view_order(order_id):
-    order = Pedido.find_by_id(order_id)
+    order = Pedido.findById(order_id)
     if order:
         return jsonify(order), 200
     else:

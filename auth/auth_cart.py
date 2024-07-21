@@ -25,14 +25,14 @@ def addCart(product_name):
 
 @cart_bp.route('/remove_from_cart/<product_name>')
 @login_required
-def remove_from_cart(product_name):
+def removeCart(product_name):
     Cart.removeCart(product_name)
     flash(f"Produto {product_name} removido do carrinho!")
     return redirect(url_for('cart.viewCart'))
 
 @cart_bp.route('/clear_cart')
 @login_required
-def clear_cart():
+def clearCart():
     Cart.clearCart()
     flash("Carrinho esvaziado!")
     return redirect(url_for('cart.viewCart'))

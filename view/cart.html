@@ -38,7 +38,7 @@
                     <h5 class="card-title">{{ item.nome }}</h5>
                     <p class="card-text">{{ item.descricao }}</p>
                     <p class="card-text">R$ {{ item.price }}</p>
-                    <a href="{{ url_for('cart.remove_from_cart', product_name=item.nome) }}" class="btn btn-danger">Remover do Carrinho</a>
+                    <a href="{{ url_for('cart.removeCart', product_name=item.nome) }}" class="btn btn-danger">Remover do Carrinho</a>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
 
     <p>Preço Total: R$ {{ total_price }}</p>
 
-    <form method="POST" action="{{ url_for('pedidos.place_order') }}">
+    <form method="POST" action="{{ url_for('pedidos.placeOrder') }}">
         <input type="hidden" name="itens" value='{{ cart_items | tojson | safe }}'>
         <input type="hidden" name="cpf" value="{{ current_user.cpf }}">
         <input type="hidden" name="total_price" value="{{ total_price }}">
