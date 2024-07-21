@@ -4,6 +4,7 @@ from auth.auth_users import user_bp
 from auth.auth_product import product_bp
 from auth.auth_pedidos import pedidos_bp
 from auth.auth_cart import cart_bp
+from auth.auth_vAlalysis import vendas_bp
 
 from classes.user import User
 
@@ -27,6 +28,7 @@ app.register_blueprint(user_bp)
 app.register_blueprint(product_bp)
 app.register_blueprint(cart_bp)
 app.register_blueprint(pedidos_bp)
+app.register_blueprint(vendas_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
