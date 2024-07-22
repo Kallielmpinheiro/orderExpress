@@ -20,6 +20,9 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="vendas-tab" data-bs-toggle="tab" href="#analisar-vendas" role="tab" aria-controls="analisar-vendas" aria-selected="false">Analisar Vendas</a>
             </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="pedidos-tab" data-bs-toggle="tab" href="#visualizar-pedidos" role="tab" aria-controls="visualizar-pedidos" aria-selected="false">Visualizar Pedidos</a>
+            </li>
         </ul>
         <div class="tab-content" id="adminTabContent">
             <div class="tab-pane fade show active" id="gerenciar-usuarios" role="tabpanel" aria-labelledby="usuarios-tab">
@@ -122,60 +125,62 @@
                     </table>
                 </div>
             </div>
+            <div class="tab-pane fade" id="visualizar-pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
+                <h2 class="mt-4">Visualizar Pedidos</h2>
+                <div id="ordersContainer">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID do Pedido</th>
+                                <th scope="col">CPF</th>
+                                <th scope="col">Itens</th>
+                                <th scope="col">Preço Total</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Data de Criação</th>
+                                <th scope="col">Data de Pagamento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Os pedidos serão carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('salesAnalysisForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const dataInicio = document.getElementById('data_inicio').value;
-            const dataFim = document.getElementById('data_fim').value;
-
-            console.log('Data de Início:', dataInicio);
-            console.log('Data de Fim:', dataFim);
-
-            fetch(`/salesAnalysis?data_inicio=${dataInicio}&data_fim=${dataFim}`)
+        function loadOrders() {
+            fetch('/listarTodosPedidos')
                 .then(response => response.json())
                 .then(data => {
-                    const salesChartCtx = document.getElementById('salesChart').getContext('2d');
                     if (data.error) {
-                        document.getElementById('resultado-analise').innerHTML = `<p style="color:red;">Erro: ${data.error}</p>`;
+                        document.getElementById('ordersContainer').innerHTML = `<p style="color:red;">Erro: ${data.error}</p>`;
                     } else {
-                        document.getElementById('totalSales').textContent = `R$ ${data.totalSales.toFixed(2)}`;
-                        document.getElementById('averageSales').textContent = `R$ ${data.averageSales.toFixed(2)}`;
-                        document.getElementById('salesCount').textContent = data.salesCount;
-
-                        const chartData = {
-                            labels: data.sales.map(sale => sale.date),
-                            datasets: [{
-                                label: 'Vendas',
-                                data: data.sales.map(sale => sale.amount),
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1,
-                                fill: false,
-                                tension: 0.1
-                            }]
-                        };
-                        const chartOptions = {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        };
-                        new Chart(salesChartCtx, {
-                            type: 'line',
-                            data: chartData,
-                            options: chartOptions
+                        const ordersTableBody = document.getElementById('ordersTableBody');
+                        ordersTableBody.innerHTML = '';
+                        data.forEach(order => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${order._id}</td>
+                                <td>${order.cpf}</td>
+                                <td>${order.itens.map(item => `${item.nome} (R$ ${item.price})`).join(', ')}</td>
+                                <td>R$ ${order.total_price.toFixed(2)}</td>
+                                <td>${order.status}</td>
+                                <td>${new Date(order.created_at).toLocaleString('pt-BR')}</td>
+                                <td>${order.paid_at ? new Date(order.paid_at).toLocaleString('pt-BR') : 'N/A'}</td>
+                            `;
+                            ordersTableBody.appendChild(row);
                         });
                     }
                 })
                 .catch(error => {
-                    console.error('Erro na análise de vendas:', error);
-                    document.getElementById('resultado-analise').innerHTML = `<p style="color:red;">Erro ao buscar dados da análise de vendas.</p>`;
+                    console.error('Erro ao carregar os pedidos:', error);
+                    document.getElementById('ordersContainer').innerHTML = `<p style="color:red;">Erro ao carregar pedidos.</p>`;
                 });
-        });
+        }
+
+        document.getElementById('pedidos-tab').addEventListener('click', loadOrders);
     </script>
 </body>
 </html>

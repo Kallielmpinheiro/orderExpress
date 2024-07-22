@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, redirect, url_for, flash, jsonify, send_file, render_template, send_from_directory
 from flask_login import login_required, current_user
-from classes.pedidoOrder import Pedido, generateReceipt
+from classes.pedidoOrder import Pedido, generateReceipt, historicoPedidos, listarTodosPedidos
 from classes.cartOrder import Cart
 import logging
 import json
@@ -103,3 +103,13 @@ def view_order(order_id):
         return jsonify(order), 200
     else:
         return jsonify({"error": "Pedido não encontrado"}), 404
+
+@pedidos_bp.route('/history')
+@login_required
+def retornarhistorico():
+    return historicoPedidos()
+
+@pedidos_bp.route('/listarTodosPedidos', methods=['GET'])
+@login_required
+def listar_todos_pedidos():
+    return listarTodosPedidos()

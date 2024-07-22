@@ -109,4 +109,3 @@ class User(BaseModel, UserMixin):
             result["dataNascimento"] = str(result["dataNascimento"])
             return User(**result)
         return None
-
