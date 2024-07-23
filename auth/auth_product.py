@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from classes.product import Product
-from database.mongodb import db, client
 from decorators import admin_required
 from flask_login import login_required
 
@@ -9,7 +8,7 @@ product_bp = Blueprint('product', __name__)
 @product_bp.route('/create_product', methods=['GET', 'POST'])
 @admin_required
 @login_required
-def create_product():
+def createProduct():
     if request.method == 'POST':
         nome = request.form['nome']
         descricao = request.form['descricao']
@@ -26,14 +25,14 @@ def create_product():
         except Exception as e:
             flash(f'Erro ao criar produto: {e}')
         
-        return redirect(url_for('product.create_product'))
+        return redirect(url_for('product.createProduct'))
     
     return render_template('admin.html')
 
 @product_bp.route('/edit_product', methods=['POST'])
 @admin_required
 @login_required
-def edit_product():
+def editProduct():
     nome = request.form['nome_edit']
     descricao = request.form['descricao_edit']
     price = float(request.form['price_edit'])
@@ -44,12 +43,12 @@ def edit_product():
     except Exception as e:
         flash(f'Erro ao atualizar produto: {e}')
     
-    return redirect(url_for('product.create_product'))
+    return redirect(url_for('product.createProduct'))
 
 @product_bp.route('/delete_product', methods=['POST'])
 @admin_required
 @login_required
-def delete_product():
+def deleteProduct():
     nome = request.form['nome']
     try:
         Product.excluirProduto(nome)
@@ -57,4 +56,4 @@ def delete_product():
     except Exception as e:
         flash(f'Erro ao excluir produto: {e}')
     
-    return redirect(url_for('product.create_product'))
+    return redirect(url_for('product.createProduct'))

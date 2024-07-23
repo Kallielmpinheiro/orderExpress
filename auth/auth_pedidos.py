@@ -26,7 +26,7 @@ def placeOrder():
     except json.JSONDecodeError as e:
         logging.error(f"Erro ao decodificar JSON: {str(e)}")
         flash(f"Erro ao decodificar itens do pedido.")
-        return redirect(url_for('cart.viewCart'))
+        return redirect(url_for('cart.exibirCarrinho'))
 
     total_price = sum(item['price'] for item in data['itens'])
     data['total_price'] = total_price
@@ -37,7 +37,7 @@ def placeOrder():
         flash("Pedido realizado com sucesso! Aguardando pagamento.")
         logging.info(f"Pedido salvo no MongoDB: {pedido_data}")
         
-        Cart.clearCart()
+        Cart.limpar()
 
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -53,7 +53,7 @@ def placeOrder():
             }],
             mode='payment',
             success_url=url_for('pedidos.payment_success', pedido_id=pedido_data["_id"], _external=True),
-            cancel_url=url_for('cart.viewCart', _external=True),
+            cancel_url=url_for('cart.exibirCarrinho', _external=True),
         )
 
         return redirect(session.url, code=303)
@@ -61,7 +61,7 @@ def placeOrder():
     except Exception as e:
         flash(f"Erro ao realizar o pedido: {str(e)}")
         logging.error(f"Erro ao processar o pedido: {e}")
-        return redirect(url_for('cart.viewCart'))
+        return redirect(url_for('cart.exibirCarrinho'))
 
 @pedidos_bp.route('/payment_success/<pedido_id>')
 @login_required

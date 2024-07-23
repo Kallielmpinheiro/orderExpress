@@ -18,7 +18,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('cart.viewCart') }}">Carrinho</a>
+                        <a class="nav-link" href="{{ url_for('cart.exibirCarrinho') }}">Carrinho</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('pedidos.retornarhistorico') }}">Histórico</a>
@@ -50,7 +50,7 @@
                     <h5 class="card-title">{{ product.nome }}</h5>
                     <p class="card-text">{{ product.descricao }}</p>
                     <p class="card-text">R$ {{ product.price }}</p>
-                    <a href="{{ url_for('cart.addCart', product_name=product.nome) }}" class="btn btn-primary">Adicionar ao Carrinho</a>
+                    <a href="{{ url_for('cart.adicionarAoCarrinho', product_name=product.nome) }}" class="btn btn-primary">Adicionar ao Carrinho</a>
                 </div>
             </div>
         </div>

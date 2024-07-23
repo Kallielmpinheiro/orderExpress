@@ -14,7 +14,7 @@ class Product(BaseModel):
 
     @classmethod
     def saveToMongo(cls, product: 'Product'):
-        product_data = product.dict(by_alias=True, exclude_unset=True)
+        product_data = product.model_dump(by_alias=True, exclude_unset=True)
         result = db.products.insert_one(product_data)
         print(f"Produto {product.nome} salvo no MongoDB com o ID: {result.inserted_id}")
         return result.inserted_id

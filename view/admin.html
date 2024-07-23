@@ -48,7 +48,7 @@
             <div class="tab-pane fade" id="gerenciar-produtos" role="tabpanel" aria-labelledby="produtos-tab">
                 <h2 class="mt-4">Gerenciar Produtos</h2>
                 <!-- Formulário de Criação de Produto -->
-                <form method="POST" action="{{ url_for('product.create_product') }}" class="mb-3">
+                <form method="POST" action="{{ url_for('product.createProduct') }}" class="mb-3">
                     <div class="mb-3">
                         <label for="nome" class="form-label">Nome</label>
                         <input type="text" class="form-control" id="nome" name="nome" required>
@@ -65,7 +65,7 @@
                 </form>
 
                 <!-- Formulário de Edição de Produto -->
-                <form method="POST" action="{{ url_for('product.edit_product') }}" class="mb-3">
+                <form method="POST" action="{{ url_for('product.editProduct') }}" class="mb-3">
                     <div class="mb-3">
                         <label for="nome_edit" class="form-label">Nome do Produto</label>
                         <input type="text" class="form-control" id="nome_edit" name="nome_edit" required>
@@ -82,7 +82,7 @@
                 </form>
 
                 <!-- Formulário de Exclusão de Produto -->
-                <form method="POST" action="{{ url_for('product.delete_product') }}" class="mb-5">
+                <form method="POST" action="{{ url_for('product.deleteProduct') }}" class="mb-5">
                     <div class="mb-3">
                         <label for="nome_delete" class="form-label">Nome do Produto</label>
                         <input type="text" class="form-control" id="nome_delete" name="nome" required>

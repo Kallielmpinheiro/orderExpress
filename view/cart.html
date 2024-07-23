@@ -20,7 +20,7 @@
                     <a class="nav-link" href="{{ url_for('user.index') }}">Início</a>
                 </li>
                 <li>
-                    <a class="nav-link" href="{{ url_for('cart.viewCart') }}">Carrinho</a>
+                    <a class="nav-link" href="{{ url_for('cart.exibirCarrinho') }}">Carrinho</a>
                 </li>
             </ul>
         </div>
@@ -38,7 +38,7 @@
                     <h5 class="card-title">{{ item.nome }}</h5>
                     <p class="card-text">{{ item.descricao }}</p>
                     <p class="card-text">R$ {{ item.price }}</p>
-                    <a href="{{ url_for('cart.removeCart', product_name=item.nome) }}" class="btn btn-danger">Remover do Carrinho</a>
+                    <a href="{{ url_for('cart.removerDoCarrinho', product_name=item.nome) }}" class="btn btn-danger">Remover do Carrinho</a>
                 </div>
             </div>
         </div>
