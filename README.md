@@ -4,13 +4,35 @@
 
 O orderExpress é uma aplicação web robusta desenvolvida para o gerenciamento completo de negócios, oferecendo funcionalidades essenciais para otimizar operações e administrar eficientemente recursos.
 
-## Funcionalidades Principais
+## Funcionalidades Existentes
 
-- **Controle de Estoque e Produtos:** Gerencie seu inventário de forma intuitiva e eficaz, mantendo controle total sobre produtos e ingredientes.
+- **Registro de Usuários:** Permite que novos usuários criem contas e acessem a plataforma.
   
-- **Relatórios de Desempenho e Análises de Vendas:** Obtenha insights detalhados sobre o desempenho do seu negócio através de análises de vendas e relatórios personalizados.
+- **Login:** Sistema de autenticação para usuários e administradores.
   
-- **Integração com Sistemas de Pagamento e Emissão de Recibos:** Facilite transações seguras e automatize a emissão de recibos para uma experiência de compra sem complicações.
+- **Histórico de Pedidos:** Os usuários podem visualizar o histórico de seus pedidos anteriores.
+  
+- **Compra de Itens e Geração de Pedidos:** Facilita a compra de itens, geração de pedidos e emissão de recibos para os usuários.
+
+- **Administração de Produtos:** Administradores podem criar, editar e excluir produtos disponíveis para venda.
+
+- **Análise de Vendas e Desempenho:** Obtenha insights detalhados sobre o desempenho do negócio através de relatórios e análises de vendas.
+
+## Funcionalidades Futuras
+
+- **Sistema de Notificação:** Enviar notificações para os usuários sobre atualizações e promoções.
+
+- **Sistema de Avaliação e Comentários:** Permitir que os usuários avaliem e comentem sobre produtos e serviços.
+
+- **Pesquisa e Filtro de Produtos:** Implementar funcionalidades de pesquisa e filtros avançados para facilitar a navegação pelos produtos.
+
+- **Sistema de Cupons e Descontos:** Oferecer cupons e descontos para promoções e campanhas especiais.
+
+- **Relatórios e Análise Avançada:** Adicionar mais opções para relatórios e análises detalhadas do desempenho do negócio.
+
+- **Implementação de Segurança:** Melhorar a segurança do aplicativo com medidas adicionais e práticas recomendadas.
+
+- **Multi-idioma e Multi-moeda:** Suporte para vários idiomas e moedas para atender a um público global.
 
 ## Como Usar
 
