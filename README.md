@@ -20,8 +20,6 @@ O orderExpress é uma aplicação web robusta desenvolvida para o gerenciamento 
 
 ## Funcionalidades Futuras
 
-- **Sistema de Notificação:** Enviar notificações para os usuários sobre atualizações e promoções.
-
 - **Sistema de Avaliação e Comentários:** Permitir que os usuários avaliem e comentem sobre produtos e serviços.
 
 - **Pesquisa e Filtro de Produtos:** Implementar funcionalidades de pesquisa e filtros avançados para facilitar a navegação pelos produtos.
