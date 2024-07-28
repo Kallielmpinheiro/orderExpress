@@ -3,19 +3,36 @@ from flask_login import login_user, logout_user, login_required, current_user
 from classes.user import User
 from decorators import admin_required
 from classes.product import Product
+from database.mongodb import db
+import logging
+from bson import ObjectId
+
+logging.basicConfig(level=logging.DEBUG)
 
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/')
 def index():
+    logging.debug("Carregando a página inicial")
     if current_user.is_authenticated:
         user_type = current_user.tipoUser
+        logging.debug(f"Usuário autenticado: {current_user.cpf}, Tipo de usuário: {user_type}")
     else:
         user_type = None
-        
+
     products = Product.getByProducts()
+    logging.debug(f"Produtos carregados: {len(products)} produtos encontrados")
+
     for product in products:
-        print(f"Produto: {product.nome}, Preço: {product.price}")
+        product.avaliacoes = list(db.reviews.find({'product_id': ObjectId(product.id)}))
+        logging.debug(f"Produto {product.nome} (ID: {product.id}) tem {len(product.avaliacoes)} avaliações")
+
+        if current_user.is_authenticated:
+            product.already_reviewed = any(avaliacao['user_cpf'] == current_user.cpf for avaliacao in product.avaliacoes)
+            logging.debug(f"Usuário {current_user.cpf} já avaliou este produto: {product.already_reviewed}")
+        else:
+            product.already_reviewed = False
+
     return render_template('index.html', user_type=user_type, products=products)
 
 @user_bp.route('/admin')
@@ -26,7 +43,6 @@ def indexadmin():
     else:
         user_type = None
     return render_template('admin.html', user_type=user_type)
-        
 
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -126,4 +142,3 @@ def register():
             flash(f'Ocorreu um erro ao criar o usuário: {e}')
             return redirect(url_for('user.register'))
     return render_template('register.html')
-    
