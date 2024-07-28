@@ -5,13 +5,12 @@ from auth.auth_product import product_bp
 from auth.auth_pedidos import pedidos_bp
 from auth.auth_cart import cart_bp
 from auth.auth_vAlalysis import vendas_bp
-
+from auth.auth_avaliacao import avaliacao_bp
 from classes.user import User
 
 app = Flask(__name__, template_folder='view',static_folder='static')
 app.secret_key = 'L1234'
 
-# Configuração do Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user.login'
@@ -29,6 +28,7 @@ app.register_blueprint(product_bp)
 app.register_blueprint(cart_bp)
 app.register_blueprint(pedidos_bp)
 app.register_blueprint(vendas_bp)
+app.register_blueprint(avaliacao_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
