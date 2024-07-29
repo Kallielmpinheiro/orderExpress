@@ -1,9 +1,9 @@
 import logging
-from flask import Blueprint, request, redirect, url_for, flash, session
+from flask import Blueprint, request, redirect, url_for, flash, render_template
 from flask_login import login_required, current_user
-from classes.product import Product, Avaliacao
 from bson import ObjectId
 from database.mongodb import db
+from classes.user import User
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -17,6 +17,14 @@ def avaliar_produto(product_id):
         comment = request.form['comentario_user']
         user_cpf = current_user.cpf
 
+        user = User.getUserByCpf(user_cpf)
+        if not user:
+            logging.error(f"Usuário com CPF {user_cpf} não encontrado")
+            flash('Usuário não encontrado.')
+            return redirect(url_for('user.index'))
+
+        logging.debug(f"Dados do usuário recuperados: {user.dict()}")
+
         product = db.products.find_one({"_id": ObjectId(product_id)})
         if not product:
             logging.error(f"Produto com ID {product_id} não encontrado")
@@ -24,19 +32,20 @@ def avaliar_produto(product_id):
 
         review = {
             "product_id": ObjectId(product_id),
-            "user_cpf": user_cpf,
+            "user_cpf": user.cpf,
+            "username": user.nomeCompleto,
             "rating": rating,
             "comment": comment
         }
 
-        existing_review = db.reviews.find_one({"product_id": ObjectId(product_id), "user_cpf": user_cpf})
+        existing_review = db.reviews.find_one({"product_id": ObjectId(product_id), "user_cpf": user.cpf})
         if existing_review:
-            logging.error(f"Usuário {user_cpf} já avaliou o produto {product_id}")
+            logging.error(f"Usuário {user.cpf} já avaliou o produto {product_id}")
             flash('Você já avaliou este produto.')
             return redirect(url_for('user.index'))
 
-      
         db.reviews.insert_one(review)
+        logging.debug(f"Avaliação salva: {review}")
 
         all_reviews = list(db.reviews.find({"product_id": ObjectId(product_id)}))
         total_reviews = len(all_reviews)
@@ -52,7 +61,7 @@ def avaliar_produto(product_id):
             }
         )
 
-        logging.info(f"Avaliação adicionada para o produto {product_id} por {user_cpf}")
+        logging.info(f"Avaliação adicionada para o produto {product_id} por {user.cpf}")
         flash('Avaliação enviada com sucesso!')
         return redirect(url_for('user.index'))
 

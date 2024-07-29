@@ -14,6 +14,10 @@ class User(BaseModel, UserMixin):
     tipoUser: str = "customer"
     statusConta: str = "active"
 
+    @property
+    def name(self):
+        return self.nomeCompleto
+
     @staticmethod
     def createUser(user: "User"):
         query = """
@@ -56,8 +60,19 @@ class User(BaseModel, UserMixin):
             return User(**result)
         return None
 
+    @staticmethod
+    def get_user_name_by_cpf(cpf: str) -> str:
+        query = "SELECT nomeCompleto FROM User WHERE cpf = %s"
+        cursor = client.cursor()
+        cursor.execute(query, (cpf,))
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            return result[0]
+        return None
+
     # Métodos exigidos pelo Flask-Login
-    
+
     @property
     def isActive(self):
         return self.statusConta == "active"
@@ -99,6 +114,7 @@ class User(BaseModel, UserMixin):
         finally:
             cursor.close()
             
+    @classmethod
     def getByUserGetStatus(cls, statusConta: str) -> "User":
         query = "SELECT * FROM User WHERE statusConta = %s"
         cursor = client.cursor(dictionary=True)

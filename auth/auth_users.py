@@ -25,6 +25,8 @@ def index():
 
     for product in products:
         product.avaliacoes = list(db.reviews.find({'product_id': ObjectId(product.id)}))
+        for avaliacao in product.avaliacoes:
+            avaliacao['username'] = User.get_user_name_by_cpf(avaliacao['user_cpf'])
         logging.debug(f"Produto {product.nome} (ID: {product.id}) tem {len(product.avaliacoes)} avaliações")
 
         if current_user.is_authenticated:
