@@ -51,6 +51,7 @@
         <input type="hidden" name="itens" value='{{ cart_items | tojson | safe }}'>
         <input type="hidden" name="cpf" value="{{ current_user.cpf }}">
         <input type="hidden" name="total_price" value="{{ total_price }}">
+        <input type="text" name="coupon_code" placeholder="Código do Cupom">
         <button type="submit" class="btn btn-success">Finalizar Pedido</button>
     </form>
 </section>
