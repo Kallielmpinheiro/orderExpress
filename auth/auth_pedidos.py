@@ -1,42 +1,50 @@
 import os
-from flask import Blueprint, request, redirect, url_for, flash, jsonify, send_file, render_template, send_from_directory
+from flask import Blueprint, request, redirect, url_for, flash, jsonify, send_from_directory, render_template
 from flask_login import login_required, current_user
 from classes.pedidoOrder import Pedido, generateReceipt, historicoPedidos, listarTodosPedidos
 from classes.cartOrder import Cart
 import logging
 import json
 import stripe
+from dotenv import load_dotenv
 
 pedidos_bp = Blueprint('pedidos', __name__)
 
-logging.basicConfig(level=logging.INFO)
-
-stripe.api_key = ''
+load_dotenv()
+stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 @pedidos_bp.route('/place_order', methods=['POST'])
 @login_required
 def placeOrder():
-    logging.info("Iniciando o processamento do pedido")
 
     data = request.form.to_dict()
-    logging.info(f"Dados do pedido recebidos como formulário: {data}")
     try:
         data['itens'] = json.loads(data['itens'])
-        logging.info(f"Dados dos itens após conversão: {data['itens']}")
     except json.JSONDecodeError as e:
-        logging.error(f"Erro ao decodificar JSON: {str(e)}")
-        flash(f"Erro ao decodificar itens do pedido.")
+        flash("Erro ao decodificar itens do pedido.")
         return redirect(url_for('cart.exibirCarrinho'))
 
     total_price = sum(item['price'] for item in data['itens'])
     data['total_price'] = total_price
 
+    coupon_code = data.get('coupon_code', None)
+    discounts = []
+
+    if coupon_code:
+        try:
+            coupon = stripe.Coupon.retrieve(coupon_code)
+            if coupon and coupon.valid:
+                discounts.append({'coupon': coupon.id})
+                flash(f"Cupom aplicado: {coupon.id}")
+            else:
+                flash("Cupom inválido ou expirado.")
+        except Exception as e:
+            flash(f"Erro ao aplicar cupom: {str(e)}")
+
     try:
         pedido = Pedido(**data)
         pedido_data = pedido.saveMongo()
-        flash("Pedido realizado com sucesso! Aguardando pagamento.")
-        logging.info(f"Pedido salvo no MongoDB: {pedido_data}")
-        
+        flash("Pedido realizado com sucesso! Aguardando pagamento.")        
         Cart.limpar()
 
         session = stripe.checkout.Session.create(
@@ -52,6 +60,7 @@ def placeOrder():
                 'quantity': 1,
             }],
             mode='payment',
+            discounts=discounts,
             success_url=url_for('pedidos.payment_success', pedido_id=pedido_data["_id"], _external=True),
             cancel_url=url_for('cart.exibirCarrinho', _external=True),
         )
@@ -60,7 +69,6 @@ def placeOrder():
 
     except Exception as e:
         flash(f"Erro ao realizar o pedido: {str(e)}")
-        logging.error(f"Erro ao processar o pedido: {e}")
         return redirect(url_for('cart.exibirCarrinho'))
 
 @pedidos_bp.route('/payment_success/<pedido_id>')
@@ -69,8 +77,6 @@ def payment_success(pedido_id):
     try:
         if Pedido.updateStatus(pedido_id, "pago"):
             flash("Pagamento realizado com sucesso! Pedido atualizado para 'pago'.")
-            logging.info(f"Pedido {pedido_id} atualizado para 'pago'.")
-
             pedido_data = Pedido.findById(pedido_id)
 
             if pedido_data:
@@ -87,7 +93,6 @@ def payment_success(pedido_id):
 
     except Exception as e:
         flash(f"Erro ao processar o pagamento: {str(e)}")
-        logging.error(f"Erro ao processar o pagamento: {e}")
         return redirect(url_for('user.index'))
 
 @pedidos_bp.route('/receipts/<filename>')
@@ -113,3 +118,54 @@ def retornarhistorico():
 @login_required
 def listar_todos_pedidos():
     return listarTodosPedidos()
+
+@pedidos_bp.route('/cupom', methods=['POST'])
+@login_required
+def criarCupom():
+    if current_user.tipoUser != 'admin':
+        flash("Acesso negado: usuário não é administrador")
+        return redirect(url_for('user.index'))
+    
+    data = request.form.to_dict()
+    try:
+        percent_off = float(data.get('percent_off', 0))
+        coupon = stripe.Coupon.create(
+            percent_off=int(percent_off),
+            duration='once'
+        )
+        flash(f"Cupom criado com sucesso: {coupon.id}")
+        logging.info(f"Cupom criado com sucesso: {coupon.id}")
+        return redirect(url_for('user.indexadmin'))
+
+    except ValueError as e:
+        flash("Valor de desconto inválido.")
+        logging.error(f"Valor de desconto inválido: {e}")
+        return redirect(url_for('user.indexadmin'))
+    except Exception as e:
+        flash(f"Erro ao criar cupom: {str(e)}")
+        logging.error(f"Erro ao criar cupom: {e}")
+        return redirect(url_for('user.indexadmin'))
+
+@pedidos_bp.route('/admin/revoke_coupon', methods=['POST'])
+@login_required
+def revogarCupom():
+    if current_user.tipoUser != 'admin':
+        flash("Acesso negado: usuário não é administrador")
+        return redirect(url_for('user.index'))
+
+    data = request.form.to_dict()
+    coupon_id = data.get('coupon_id')
+
+    try:
+        coupon = stripe.Coupon.modify(
+            coupon_id,
+            valid=False
+        )
+        flash(f"Cupom revogado com sucesso: {coupon.id}")
+        logging.info(f"Cupom revogado com sucesso: {coupon.id}")
+        return redirect(url_for('user.indexadmin'))
+
+    except Exception as e:
+        flash(f"Erro ao revogar cupom: {str(e)}")
+        logging.error(f"Erro ao revogar cupom: {e}")
+        return redirect(url_for('user.indexadmin'))
