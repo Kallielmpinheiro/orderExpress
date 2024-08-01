@@ -7,9 +7,12 @@ from auth.auth_cart import cart_bp
 from auth.auth_vAlalysis import vendas_bp
 from auth.auth_avaliacao import avaliacao_bp
 from classes.user import User
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__, template_folder='view',static_folder='static')
-app.secret_key = 'L1234'
+app.secret_key = os.getenv('secret_key')
 
 login_manager = LoginManager()
 login_manager.init_app(app)

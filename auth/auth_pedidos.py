@@ -75,26 +75,25 @@ def placeOrder():
 @login_required
 def payment_success(pedido_id):
     try:
-        if Pedido.updateStatus(pedido_id, "pago"):
-            flash("Pagamento realizado com sucesso! Pedido atualizado para 'pago'.")
-            pedido_data = Pedido.findById(pedido_id)
+            if Pedido.updateStatus(pedido_id, "pago"):
+                flash("Pagamento realizado com sucesso! Pedido atualizado para 'pago'.")
+                pedido_data = Pedido.findById(pedido_id)
 
-            if pedido_data:
-                receipt_path = generateReceipt(pedido_data, pedido_id)
-                receipt_url = url_for('pedidos.download_receipt', filename=os.path.basename(receipt_path))
+                if pedido_data:
+                    receipt_path = generateReceipt(pedido_data, pedido_id)
+                    receipt_url = url_for('pedidos.download_receipt', filename=os.path.basename(receipt_path))
 
-                return render_template('payment_success.html', receipt_url=receipt_url, index_url=url_for('user.index'))
+                    return render_template('payment_success.html', receipt_url=receipt_url, index_url=url_for('user.index'))
 
-            flash("Erro ao gerar o recibo.")
+                flash("Erro ao gerar o recibo.")
+                return redirect(url_for('user.index'))
+
+            flash("Erro ao atualizar o status do pedido.")
             return redirect(url_for('user.index'))
-
-        flash("Erro ao atualizar o status do pedido.")
-        return redirect(url_for('user.index'))
 
     except Exception as e:
         flash(f"Erro ao processar o pagamento: {str(e)}")
         return redirect(url_for('user.index'))
-
 @pedidos_bp.route('/receipts/<filename>')
 @login_required
 def download_receipt(filename):
@@ -169,3 +168,40 @@ def revogarCupom():
         flash(f"Erro ao revogar cupom: {str(e)}")
         logging.error(f"Erro ao revogar cupom: {e}")
         return redirect(url_for('user.indexadmin'))
+
+@pedidos_bp.route('/retry_payment/<pedido_id>')
+@login_required
+def retry_payment(pedido_id):
+    try:
+        pedido = Pedido.findById(pedido_id)
+        if not pedido:
+            flash("Pedido não encontrado.")
+            return redirect(url_for('pedidos.retornarhistorico'))
+
+        if pedido['status'] == 'pago':
+            flash("Este pedido já foi pago.")
+            return redirect(url_for('pedidos.retornarhistorico'))
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'brl',
+                    'product_data': {
+                        'name': 'Pedido ' + str(pedido["_id"]),
+                    },
+                    'unit_amount': int(pedido['total_price'] * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('pedidos.payment_success', pedido_id=pedido["_id"], _external=True),
+            cancel_url=url_for('pedidos.retornarhistorico', _external=True),
+        )
+
+        return redirect(session.url, code=303)
+
+    except Exception as e:
+        logging.error(f"Erro ao tentar pagamento novamente: {e}")
+        flash(f"Erro ao tentar pagamento novamente: {str(e)}")
+        return redirect(url_for('pedidos.retornarhistorico'))

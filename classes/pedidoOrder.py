@@ -7,7 +7,8 @@ from database.mongodb import db
 from typing import List
 from bson import ObjectId
 from datetime import datetime
-from flask_login import current_user    
+from flask_login import current_user
+from flask import render_template   
 import logging
 from flask import jsonify, url_for
 
@@ -90,15 +91,18 @@ def historicoPedidos():
         pedidos = Pedido.findByCpf(cpf)
         if not pedidos:
             logging.info(f"Nenhum pedido encontrado para o CPF: {cpf}")
-            return jsonify({"message": "Nenhum pedido encontrado"}), 404
+            return render_template('historico_pedidos.html', pedidos=[])
 
-        pedidos_list = []
         for pedido in pedidos:
             pedido['_id'] = str(pedido['_id'])
-            pedidos_list.append(pedido)
-            generateReceipt(pedido, pedido['_id'])
+            if pedido['status'] == 'pago':
+                generateReceipt(pedido, pedido['_id'])
 
-        return jsonify(pedidos_list), 200
+        return render_template('historico_pedidos.html', pedidos=pedidos)
+
+    except Exception as e:
+        logging.error(f"Erro ao consultar histórico de pedidos: {e}")
+        return jsonify({"error": "Erro ao consultar histórico de pedidos"}), 500
 
     except Exception as e:
         logging.error(f"Erro ao consultar histórico de pedidos: {e}")
