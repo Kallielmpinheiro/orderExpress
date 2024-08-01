@@ -12,25 +12,35 @@ O orderExpress é uma aplicação web robusta desenvolvida para o gerenciamento 
   
 - **Histórico de Pedidos:** Os usuários podem visualizar o histórico de seus pedidos anteriores.
   
-- **Compra de Itens e Geração de Pedidos:** Facilita a compra de itens, geração de pedidos e emissão de recibos para os usuários.
+- **Compra de Itens e Geração de Pedidos:** Facilita a compra de itens, geração de pedidos e emissão de recibos para os usuários, utilizando a API da Stripe.
 
 - **Administração de Produtos:** Administradores podem criar, editar e excluir produtos disponíveis para venda.
 
 - **Análise de Vendas e Desempenho:** Obtenha insights detalhados sobre o desempenho do negócio através de relatórios e análises de vendas.
 
-## Funcionalidades Futuras
+- **Controle de Usuário:** Administradores podem banir e revogar usuários conforme necessário.
+
+- **Visualização de Pedidos:** Exibição completa de todos os pedidos feitos, com detalhes para cada transação.
+
+- **Gerenciamento de Cupons:** Criação e revogação de cupons de desconto para promoções e campanhas.
 
 - **Sistema de Avaliação e Comentários:** Permitir que os usuários avaliem e comentem sobre produtos e serviços.
 
-- **Pesquisa e Filtro de Produtos:** Implementar funcionalidades de pesquisa e filtros avançados para facilitar a navegação pelos produtos.
+## Funcionalidades Futuras
 
-- **Sistema de Cupons e Descontos:** Oferecer cupons e descontos para promoções e campanhas especiais.
-
-- **Relatórios e Análise Avançada:** Adicionar mais opções para relatórios e análises detalhadas do desempenho do negócio.
+- **Relatórios e Análise:** Adicionar mais opções para relatórios e análises detalhadas do desempenho do negócio.
 
 - **Implementação de Segurança:** Melhorar a segurança do aplicativo com medidas adicionais e práticas recomendadas.
 
 - **Multi-idioma e Multi-moeda:** Suporte para vários idiomas e moedas para atender a um público global.
+
+## Tecnologias Utilizadas
+
+- **Linguagem de Programação:** Python 3.12.2
+- **Framework Web:** Flask 3.0
+- **Banco de Dados Relacional:** MySQL
+- **Banco de Dados NoSQL:** MongoDB
+- **Framework de Frontend:** Bootstrap 5
 
 ## Como Usar
 
