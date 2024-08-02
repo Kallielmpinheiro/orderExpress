@@ -11,6 +11,7 @@
     <div class="container mt-5">
         <h2>Cadastro de Usuário</h2>
         <form action="{{ url_for('user.register') }}" method="post">
+            {{ form.hidden_tag() }}
             <div class="mb-3">
                 <label for="nomeCompleto" class="form-label">Nome Completo</label>
                 <input type="text" class="form-control" id="nomeCompleto" name="nomeCompleto" required>

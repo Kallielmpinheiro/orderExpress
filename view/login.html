@@ -19,16 +19,17 @@
               <h3>Login</h3>
             </div>
             <div class="card-body">
-              <form method="post">
+              <form method="post" action="{{ url_for('user.login') }}">
+                {{ form.hidden_tag() }}
                 <div class="mb-3">
                   <label for="cpf" class="form-label">CPF</label>
-                  <input type="text" class="form-control" name="cpf" id="cpf">
+                  {{ form.cpf(class="form-control") }}
                 </div>
                 <div class="mb-3">
                   <label for="password" class="form-label">Senha</label>
-                  <input type="password" class="form-control" name="password" id="password">
+                  {{ form.password(class="form-control") }}
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                {{ form.submit(class="btn btn-primary w-100") }}
               </form>
             </div>
           </div>

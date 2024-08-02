@@ -6,6 +6,7 @@ from classes.product import Product
 from database.mongodb import db
 import logging
 from bson import ObjectId
+from security.forms import LoginForm, RegisterForm
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,24 +49,22 @@ def indexadmin():
 
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        cpf = request.form['cpf']
-        password = request.form['password']
+    form = LoginForm()
+    if form.validate_on_submit():
+        cpf = form.cpf.data
+        password = form.password.data
 
         user = User.getUserByCpf(cpf)
-        if user:
-            if user.senha == password:
-                if user.statusConta == 'active':
-                    login_user(user)
-                    return redirect(url_for('user.index'))
-                else:
-                    flash('Sua conta está suspensa. Entre em contato com o administrador.')
+        if user and user.senha == password:
+            if user.statusConta == 'active':
+                login_user(user)
+                return redirect(url_for('user.index'))
             else:
-                flash('Senha incorreta.')
+                flash('Sua conta está suspensa. Entre em contato com o administrador.')
         else:
-            flash('CPF não encontrado.')
+            flash('CPF ou senha incorretos.')
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 @user_bp.route('/logout')
 @login_required
@@ -123,16 +122,17 @@ def unsuspend_user():
     
 @user_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
+    form = RegisterForm()
+    if form.validate_on_submit():
         try:
             user_data = {
-                "nomeCompleto": request.form['nomeCompleto'],
-                "cpf": request.form['cpf'],
-                "dataNascimento": request.form['dataNascimento'],
-                "email": request.form['email'],
-                "senha": request.form['senha'],
-                "telefone": request.form['telefone'],
-                "endereco": request.form['endereco'],
+                "nomeCompleto": form.nomeCompleto.data,
+                "cpf": form.cpf.data,
+                "dataNascimento": form.dataNascimento.data,
+                "email": form.email.data,
+                "senha": form.senha.data,
+                "telefone": form.telefone.data,
+                "endereco": form.endereco.data,
                 "tipoUser": 'customer',
                 "statusConta": 'active'
             }
@@ -143,4 +143,4 @@ def register():
         except Exception as e:
             flash(f'Ocorreu um erro ao criar o usuário: {e}')
             return redirect(url_for('user.register'))
-    return render_template('register.html')
+    return render_template('register.html', form=form)
