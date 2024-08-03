@@ -43,63 +43,40 @@
                 <h2 class="mt-4">Gerenciar Usuários</h2>
                 <!-- Formulário de Banir Usuário -->
                 <form method="POST" action="{{ url_for('user.suspend_user') }}" class="mb-3">
+                    {{ form_suspend.hidden_tag() }}
                     <div class="mb-3">
                         <label for="cpf_banir" class="form-label">CPF do Usuário</label>
-                        <input type="text" class="form-control" id="cpf_banir" name="cpf" placeholder="Digite o CPF"
-                            required>
+                        {{ form_suspend.cpf(class="form-control", placeholder="Digite o CPF") }}
                     </div>
                     <button type="submit" class="btn btn-danger">Banir</button>
                 </form>
-
                 <!-- Formulário de Desbanir Usuário -->
                 <form method="POST" action="{{ url_for('user.unsuspend_user') }}" class="mb-3">
+                    {{ form_unsuspend.hidden_tag() }}
                     <div class="mb-3">
                         <label for="cpf_desbanir" class="form-label">CPF do Usuário</label>
-                        <input type="text" class="form-control" id="cpf_desbanir" name="cpf" placeholder="Digite o CPF"
-                            required>
+                        {{ form_unsuspend.cpf(class="form-control", placeholder="Digite o CPF") }}
                     </div>
                     <button type="submit" class="btn btn-success">Desbanir</button>
                 </form>
             </div>
             <div class="tab-pane fade" id="gerenciar-produtos" role="tabpanel" aria-labelledby="produtos-tab">
                 <h2 class="mt-4">Gerenciar Produtos</h2>
-                <!-- Formulário de Criação de Produto -->
-                <form method="POST" action="{{ url_for('product.createProduct') }}" class="mb-3">
+                <form method="POST" action="{{ url_for('product.createProduct') }}">
                     <div class="mb-3">
-                        <label for="nome" class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="nome" name="nome" required>
+                        {{ form_product.nome.label(class="form-label") }}
+                        {{ form_product.nome(class="form-control") }}
                     </div>
                     <div class="mb-3">
-                        <label for="descricao" class="form-label">Descrição</label>
-                        <input type="text" class="form-control" id="descricao" name="descricao" required>
+                        {{ form_product.descricao.label(class="form-label") }}
+                        {{ form_product.descricao(class="form-control") }}
                     </div>
                     <div class="mb-3">
-                        <label for="price" class="form-label">Preço</label>
-                        <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                        {{ form_product.price.label(class="form-label") }}
+                        {{ form_product.price(class="form-control") }}
                     </div>
-                    <button type="submit" class="btn btn-primary">Criar Produto</button>
-                </form>
-
-                <!-- Formulário de Edição de Produto -->
-                <form method="POST" action="{{ url_for('product.editProduct') }}" class="mb-3">
-                    <div class="mb-3">
-                        <label for="id_editar" class="form-label">ID do Produto</label>
-                        <input type="text" class="form-control" id="id_editar" name="id" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="nome_editar" class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="nome_editar" name="nome">
-                    </div>
-                    <div class="mb-3">
-                        <label for="descricao_editar" class="form-label">Descrição</label>
-                        <input type="text" class="form-control" id="descricao_editar" name="descricao">
-                    </div>
-                    <div class="mb-3">
-                        <label for="price_editar" class="form-label">Preço</label>
-                        <input type="number" class="form-control" id="price_editar" name="price" step="0.01">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Editar Produto</button>
-                </form>
+                    <input type="submit" class="btn btn-primary" value="Criar Produto">
+                </form>                
             </div>
             <div class="tab-pane fade" id="analisar-vendas" role="tabpanel" aria-labelledby="vendas-tab">
                 <h2 class="mt-4">Analisar Vendas</h2>

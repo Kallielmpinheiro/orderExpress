@@ -85,20 +85,44 @@
                         {% endif %}
 
                         <div class="d-flex justify-content-between mt-3">
+                            <!-- Botão de adicionar ao carrinho -->
                             <a href="{{ url_for('cart.adicionarAoCarrinho', product_name=product.nome) }}"
                                 class="btn btn-primary">Adicionar ao Carrinho</a>
-                            {% if not current_user.is_authenticated or not product.already_reviewed %}
+
+                            {% if current_user.is_authenticated %}
+                            <!-- Botão de edição para admin -->
+                            {% if current_user.tipoUser == 'admin' %}
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editarModal_{{ product.id }}">
+                                Editar Produto
+                            </button>
+                            {% endif %}
+
+                            <!-- Botão de exclusão para admin -->
+                            {% if current_user.tipoUser == 'admin' %}
+                            <form method="POST" action="{{ url_for('product.deleteProduct') }}">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <button type="submit" class="btn btn-danger">Excluir Produto</button>
+                            </form>
+                            {% endif %}
+
+                            <!-- Botão de avaliação para usuários comuns -->
+                            {% if not product.already_reviewed and current_user.tipoUser != 'admin' %}
                             <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
                                 data-bs-target="#avaliarModal_{{ product.id }}">
                                 Avaliar Produto
                             </button>
-                            {% else %}
+                            {% elif current_user.tipoUser != 'admin' %}
                             <p>Você já avaliou este produto.</p>
+                            {% endif %}
+                            {% else %}
+                            <p>Faça login para avaliar este produto.</p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Modal para avaliação do produto -->
             <div class="modal fade" id="avaliarModal_{{ product.id }}" tabindex="-1"
                 aria-labelledby="avaliarModalLabel_{{ product.id }}" aria-hidden="true">
                 <div class="modal-dialog">
@@ -124,7 +148,40 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary">Enviar Avaliação</button>
                             </form>
-
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal para edição do produto -->
+            <div class="modal fade" id="editarModal_{{ product.id }}" tabindex="-1"
+                aria-labelledby="editarModalLabel_{{ product.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editarModalLabel_{{ product.id }}">Editar Produto: {{
+                                product.nome }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{{ url_for('product.editProduct') }}">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <div class="mb-3">
+                                    <label for="nome_editar_{{ product.id }}" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" id="nome_editar_{{ product.id }}"
+                                        name="nome" value="{{ product.nome }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descricao_editar_{{ product.id }}" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="descricao_editar_{{ product.id }}"
+                                        name="descricao" required>{{ product.descricao }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price_editar_{{ product.id }}" class="form-label">Preço</label>
+                                    <input type="number" class="form-control" id="price_editar_{{ product.id }}"
+                                        name="price" step="0.01" value="{{ product.price }}" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            </form>
                         </div>
                     </div>
                 </div>
