@@ -1,3 +1,4 @@
+import logging
 from pydantic import BaseModel, Field
 from bson import ObjectId
 from typing import List, Optional
@@ -22,31 +23,72 @@ class Product(BaseModel):
     class Config:
         orm_mode = True
 
+    def createInMongo(self):
+        """ Cria um novo produto no MongoDB """
+        try:
+            product_data = self.dict(by_alias=True, exclude_unset=True)
+            db.products.insert_one(product_data)
+            logging.debug(f'Product {self.nome} inserted into MongoDB.')
+        except Exception as e:
+            logging.error(f'Error inserting product into MongoDB: {e}')
+            raise
+    
     def saveToMongo(self):
-        product_data = self.dict(by_alias=True, exclude_unset=True)
-        result = db.products.insert_one(product_data)
-        print(f"Produto {self.nome} salvo no MongoDB com o ID: {result.inserted_id}")
-        return result.inserted_id
+        try:
+            
+            product_data = {
+                "nome": self.nome,
+                "descricao": self.descricao,
+                "price": self.price
+            }
+            db.products.update_one(
+                {"_id": ObjectId(self.id)},
+                {"$set": product_data}
+            )
+            logging.debug(f'Product {self.nome} saved to MongoDB.')
+        except Exception as e:
+            logging.error(f'Error saving product to MongoDB: {e}')
+            raise
 
     def updateInMongo(self):
-        product_data = self.dict(by_alias=True, exclude_unset=True)
-        result = db.products.update_one({"_id": self.id}, {"$set": product_data})
-        if result.modified_count > 0:
-            print(f"Produto {self.nome} atualizado com sucesso!")
-        else:
-            print(f"Produto {self.nome} não encontrado ou nenhuma alteração foi feita.")
+        try:
+            product_data = self.model_dump(by_alias=True, exclude_unset=True)
+            product_data.pop('_id', None)
+            result = db.products.update_one(
+                {"_id": ObjectId(self.id)},
+                {"$set": product_data}
+            )
+            if result.modified_count > 0:
+                logging.debug(f'Product {self.nome} updated successfully in MongoDB.')
+            else:
+                logging.warning(f'Product {self.nome} not found or no changes made in MongoDB.')
+        except Exception as e:
+            logging.error(f'Error updating product in MongoDB: {e}')
+            raise
 
     @classmethod
     def getByProducts(cls) -> List['Product']:
-        products = db.products.find()
-        return [cls(**cls.__adaptDocument(product)) for product in products]
+        try:
+            products = db.products.find()
+            logging.debug('Products fetched from MongoDB.')
+            return [cls(**cls.__adaptDocument(product)) for product in products]
+        except Exception as e:
+            logging.error(f'Error fetching products from MongoDB: {e}')
+            return []
 
     @classmethod
     def getById(cls, product_id: str) -> Optional['Product']:
-        product = db.products.find_one({"_id": ObjectId(product_id)})
-        if product:
-            return cls(**cls.__adaptDocument(product))
-        return None
+        try:
+            product = db.products.find_one({"_id": ObjectId(product_id)})
+            if product:
+                logging.debug(f'Product with id {product_id} fetched from MongoDB.')
+                return cls(**cls.__adaptDocument(product))
+            else:
+                logging.warning(f'Product with id {product_id} not found in MongoDB.')
+                return None
+        except Exception as e:
+            logging.error(f'Error fetching product by id from MongoDB: {e}')
+            return None
 
     @staticmethod
     def __adaptDocument(product_doc: dict) -> dict:
