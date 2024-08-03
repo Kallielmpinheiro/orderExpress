@@ -4,35 +4,27 @@ from classes.user import User
 from decorators import admin_required
 from classes.product import Product
 from database.mongodb import db
-import logging
 from bson import ObjectId
-from security.forms import LoginForm, RegisterForm
-
-logging.basicConfig(level=logging.DEBUG)
+from security.forms import LoginForm, RegisterForm, SuspendUserForm, UnsuspendUserForm, ProductForm
 
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/')
 def index():
-    logging.debug("Carregando a página inicial")
     if current_user.is_authenticated:
         user_type = current_user.tipoUser
-        logging.debug(f"Usuário autenticado: {current_user.cpf}, Tipo de usuário: {user_type}")
+        
     else:
         user_type = None
 
     products = Product.getByProducts()
-    logging.debug(f"Produtos carregados: {len(products)} produtos encontrados")
-
     for product in products:
         product.avaliacoes = list(db.reviews.find({'product_id': ObjectId(product.id)}))
         for avaliacao in product.avaliacoes:
             avaliacao['username'] = User.get_user_name_by_cpf(avaliacao['user_cpf'])
-        logging.debug(f"Produto {product.nome} (ID: {product.id}) tem {len(product.avaliacoes)} avaliações")
 
         if current_user.is_authenticated:
             product.already_reviewed = any(avaliacao['user_cpf'] == current_user.cpf for avaliacao in product.avaliacoes)
-            logging.debug(f"Usuário {current_user.cpf} já avaliou este produto: {product.already_reviewed}")
         else:
             product.already_reviewed = False
 
@@ -43,9 +35,12 @@ def index():
 def indexadmin():
     if current_user.is_authenticated:
         user_type = current_user.tipoUser
+        form_suspend = SuspendUserForm()
+        form_unsuspend = UnsuspendUserForm()
+        form_product = ProductForm()
     else:
         user_type = None
-    return render_template('admin.html', user_type=user_type)
+    return render_template('admin.html', user_type=user_type, form_suspend=form_suspend, form_unsuspend=form_unsuspend,form_product=form_product)
 
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -81,45 +76,49 @@ def redirect_page():
 @login_required
 @admin_required
 def suspend_user():
-    if current_user.tipoUser == 'admin':
-        cpf = request.form['cpf']
-        user = User.getUserByCpf(cpf)
-        
-        if user:
-            user.banir()
-            flash(f'Usuário com CPF {cpf} suspenso com sucesso')
-            print(f'Usuário com CPF {cpf} suspenso com sucesso')
+    form = SuspendUserForm(request.form)
+    if form.validate_on_submit():
+        cpf = form.cpf.data
+        if current_user.tipoUser == 'admin':
+            user = User.getUserByCpf(cpf)
+            if user:
+                user.banir()
+                flash(f'Usuário com CPF {cpf} banido com sucesso')
+                print(f'Usuário com CPF {cpf} banido com sucesso')
+            else:
+                flash('Usuário não encontrado')
+                print('Usuário não encontrado')
         else:
-            flash('Usuário não encontrado')
-            print('Usuário não encontrado')
-            return redirect(url_for('user.indexadmin'))
-
-    else:
-        flash('Apenas administradores podem suspender usuários')
-        print('Apenas administradores podem suspender usuários')
-        return redirect(url_for('user.index'))
-    return redirect(url_for('user.indexadmin'))
+            flash('Apenas administradores podem banir usuários')
+            print('Apenas administradores podem banir usuários')
+        return redirect(url_for('user.indexadmin'))
     
+    
+    return redirect(url_for('user.indexadmin'))
+
 @user_bp.route('/unsuspend_user', methods=['POST'])
 @login_required
 @admin_required
 def unsuspend_user():
-    if current_user.tipoUser == 'admin':
-        cpf = request.form['cpf']
-        user = User.getUserByCpf(cpf)
-        if user:
-            user.desbanir()
-            flash(f'Usuário com CPF {cpf} desbanido com sucesso')
-            print(f'Usuário com CPF {cpf} desbanido com sucesso')
+    form = UnsuspendUserForm(request.form)
+    if form.validate_on_submit():
+        cpf = form.cpf.data
+        if current_user.tipoUser == 'admin':
+            user = User.getUserByCpf(cpf)
+            if user:
+                user.desbanir()
+                flash(f'Usuário com CPF {cpf} desbanido com sucesso')
+                print(f'Usuário com CPF {cpf} desbanido com sucesso')
+            else:
+                flash('Usuário não encontrado')
+                print('Usuário não encontrado')
         else:
-            flash('Usuário não encontrado')
-            print('Usuário não encontrado')
-        return redirect(url_for('user.indexadmin'))
-    else:
-        flash('Apenas administradores podem desbanir usuários')
-        print('Apenas administradores podem desbanir usuários')
+            flash('Apenas administradores podem desbanir usuários')
+            print('Apenas administradores podem desbanir usuários')
         return redirect(url_for('user.indexadmin'))
     
+    return redirect(url_for('user.indexadmin'))
+        
 @user_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
